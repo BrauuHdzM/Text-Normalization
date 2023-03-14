@@ -14,14 +14,14 @@ nuevas_stop_words = { ##Articulos
                         'otro', 'cierto', 'algún', 'alguna', 'algunos', 'algunas', 'varios', 'varias',
                         'ambos', 'ambas', 'cada', 'cualquier', 'cualquieras', 'demasiado', 'demasiada', 
                         'demasiados', 'demasiadas', 'menos', 'más', 'medio', 'media', 'medios', 'medias',
-                        'ningún', 'ninguna', 'ningunos', 'ningunas', 'varios', 'varias', 'poco', 'poca',
+                        'ningún', 'ninguna', 'ningunos', 'ningunas', 'varios', 'varias', 'poco', 'poca', 'Él',
                     ##Preposiciones
                         'a', 'ante', 'bajo', 'cabe', 'con', 'contra', 'de', 'desde', 'durante', 'en', 'entre',
                         'hacia', 'hasta', 'mediante', 'para', 'por', 'segun', 'sin', 'so', 'sobre', 'tras',
                         'versus', 'vía', 'a través de', 'a causa de', 'a pesar de', 'a propósito de', 'a raíz de',
                         'durante', 'excepto', 'frente a', 'junto a', 'menos', 'salvo', 'según', 'según con',
                         'sobre todo', 'dentro de', 'encima de', 'detrás de', 'fuera de', 'más allá de', 'debajo de',
-                        'dentro de',
+                        'dentro de', 'de', 'DE',
                     ##Conjunciones
                         'y', 'e', 'ni', 'o', 'u', 'que', 'si', 'mas', 'pero', 'aunque', 'sino', 'para que', 'porque',
                         'ya que', 'pues', 'como', 'así que', 'mientras', 'cuando', 'después', 'antes', 'hasta que',
@@ -38,7 +38,11 @@ nuevas_stop_words = { ##Articulos
 
 #Se agrega la lista de stop words anterior a la lista por defecto de Spacy
 #Para ver la lista original de Spacy: verStopWords.py
-stop_words = STOP_WORDS.union(nuevas_stop_words)
+#stop_words = STOP_WORDS.union(nuevas_stop_words)
+
+#Se reemplaza la lista de stop words por defecto de spacy 
+stop_words = nuevas_stop_words
+
 #print(stop_words)
 
 #Se carga el corpus para el tagger en español
@@ -48,11 +52,13 @@ nlp = spacy.load('es_core_news_sm')
 df = pd.read_csv('corpus_noticias.txt', sep='&&&&&&&&', header=None, engine="python")
 noticias = df.iloc[:, 2]
 
+
 # Tokenizar, lematizar y remover stop words en cada noticia
 noticias_procesadas = []
 for noticia in noticias:
     doc = nlp(noticia)
-    tokens = [token.lemma_ for token in doc if not token.is_stop and not token.is_punct]
+                                                                 #and not token.is_punct signos de puntación
+    tokens = [token.lemma_ for token in doc if (token.text.lower() and token.lemma_) not in stop_words]
     noticias_procesadas.append(" ".join(tokens))
 
 # Crear un nuevo archivo con el corpus procesado
